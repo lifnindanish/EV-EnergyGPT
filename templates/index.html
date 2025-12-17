@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EV Energy Consumption Predictor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ EV Energy Consumption Predictor</h1>
+            <p class="subtitle">Advanced Machine Learning Model for Electric Vehicle Energy Analysis</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="openTab(event, 'visualization')">
+                📊 Visualization
+            </button>
+            <button class="tab-button" onclick="openTab(event, 'ml-model')">
+                🤖 ML Model
+            </button>
+        </div>
+
+        <!-- Visualization Tab -->
+        <div id="visualization" class="tab-content active">
+            <div class="viz-container">
+                <h2>Energy Consumption Analysis</h2>
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>Energy by Road Type</h3>
+                        <canvas id="roadTypeChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Energy by Weather Condition</h3>
+                        <canvas id="weatherChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Speed vs Energy Consumption</h3>
+                        <canvas id="speedEnergyChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Temperature vs Energy Consumption</h3>
+                        <canvas id="tempEnergyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ML Model Tab -->
+        <div id="ml-model" class="tab-content">
+            <div class="model-container">
+                <h2>Predict Energy Consumption</h2>
+                <form id="predictionForm">
+                    <div class="form-grid">
+                        <!-- Distance & Speed -->
+                        <div class="form-section">
+                            <h3>🚗 Distance & Speed</h3>
+                            <div class="form-group">
+                                <label for="segment_length_m">Segment Length (m)</label>
+                                <input type="number" id="segment_length_m" name="segment_length_m" value="1200" step="100" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="avg_speed_kmh">Average Speed (km/h)</label>
+                                <input type="number" id="avg_speed_kmh" name="avg_speed_kmh" value="55" step="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="speed_limit_kmh">Speed Limit (km/h)</label>
+                                <input type="number" id="speed_limit_kmh" name="speed_limit_kmh" value="60" step="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="vehicle_speed_var">Vehicle Speed Variance</label>
+                                <input type="number" id="vehicle_speed_var" name="vehicle_speed_var" value="8" step="0.1" required>
+                            </div>
+                        </div>
+
+                        <!-- Road Conditions -->
+                        <div class="form-section">
+                            <h3>🛣️ Road Conditions</h3>
+                            <div class="form-group">
+                                <label for="road_gradient_deg">Road Gradient (degrees)</label>
+                                <input type="number" id="road_gradient_deg" name="road_gradient_deg" value="2" step="0.1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="traffic_density">Traffic Density (0-1)</label>
+                                <input type="number" id="traffic_density" name="traffic_density" value="0.4" step="0.01" min="0" max="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="road_type">Road Type</label>
+                                <select id="road_type" name="road_type" required>
+                                    <option value="city" selected>City</option>
+                                    <option value="highway">Highway</option>
+                                    <option value="rural">Rural</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="num_stops">Number of Stops</label>
+                                <input type="number" id="num_stops" name="num_stops" value="3" step="1" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lane_changes">Lane Changes</label>
+                                <input type="number" id="lane_changes" name="lane_changes" value="1" step="1" min="0" required>
+                            </div>
+                        </div>
+
+                        <!-- Vehicle Parameters -->
+                        <div class="form-section">
+                            <h3>🚙 Vehicle Parameters</h3>
+                            <div class="form-group">
+                                <label for="vehicle_mass_kg">Vehicle Mass (kg)</label>
+                                <input type="number" id="vehicle_mass_kg" name="vehicle_mass_kg" value="1600" step="10" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="payload_weight_kg">Payload Weight (kg)</label>
+                                <input type="number" id="payload_weight_kg" name="payload_weight_kg" value="200" step="10" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="start_SOC_%">Start State of Charge (%)</label>
+                                <input type="number" id="start_SOC_%" name="start_SOC_%" value="80" step="1" min="0" max="100" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="accel_mps2">Acceleration (m/s²)</label>
+                                <input type="number" id="accel_mps2" name="accel_mps2" value="0.6" step="0.1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="regen_efficiency">Regenerative Efficiency (0-1)</label>
+                                <input type="number" id="regen_efficiency" name="regen_efficiency" value="0.85" step="0.01" min="0" max="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="tire_pressure_Pa">Tire Pressure (Pa)</label>
+                                <input type="number" id="tire_pressure_Pa" name="tire_pressure_Pa" value="220000" step="1000" required>
+                            </div>
+                        </div>
+
+                        <!-- Environmental Conditions -->
+                        <div class="form-section">
+                            <h3>🌤️ Environmental Conditions</h3>
+                            <div class="form-group">
+                                <label for="ambient_temp_C">Ambient Temperature (°C)</label>
+                                <input type="number" id="ambient_temp_C" name="ambient_temp_C" value="30" step="1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="weather_condition">Weather Condition</label>
+                                <select id="weather_condition" name="weather_condition" required>
+                                    <option value="sunny" selected>Sunny</option>
+                                    <option value="rainy">Rainy</option>
+                                    <option value="cloudy">Cloudy</option>
+                                    <option value="snowy">Snowy</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="wind_speed_mps">Wind Speed (m/s)</label>
+                                <input type="number" id="wind_speed_mps" name="wind_speed_mps" value="3" step="0.1" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="predict-button">
+                        🔮 Predict Energy Consumption
+                    </button>
+                </form>
+
+                <div id="results" class="results hidden">
+                    <h3>Prediction Results</h3>
+                    <div class="result-cards">
+                        <div class="result-card">
+                            <div class="result-label">Energy Consumed</div>
+                            <div class="result-value" id="energyWh">-</div>
+                            <div class="result-unit">Wh</div>
+                        </div>
+                        <div class="result-card">
+                            <div class="result-label">Energy Consumed</div>
+                            <div class="result-value" id="energyKWh">-</div>
+                            <div class="result-unit">kWh</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="error" class="error hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
